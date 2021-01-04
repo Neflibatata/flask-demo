@@ -1,8 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
 import lxml
+import xlrd,xlwt
 
 rooturl = 'https://seo.chinaz.com/'
+xlspath = 'testurl.xlsx'
 
 proxy = {
     'http': 'http://localhost:4780',
@@ -21,29 +23,30 @@ def get_one_page(url):
     url = rooturl+url
     # print(url)
     html = requests.get(url, headers=headers, proxies=proxy)
-    # print(html.encoding)
-    # html.encoding = "GB2312"
-    # print(html.encoding)
-    # html.encoding = html.apparent_encoding
-    # html.content.decode('unicode')
-    # html = html.content
-    # html_doc=str(html,'utf-8') #html_doc=html.decode("utf-8","ignore")
-    # x = requests.utils.get_encoding_from_headers(html.text)
-    # print(html.content.decode(html.encoding))
     soup = BeautifulSoup(html.text, 'lxml')
-    h = soup.find(class_="_chinaz-seo-t2l").text
+    citename = soup.find(class_="_chinaz-seo-t2l").text
     # h = soup.find('title')
 
     # print (requests.utils.get_encoding_from_headers(headers))
-    return h
+    return citename
 
+def create_url(urllist, sheetname, filename):
+    # book = xlrd.open_workbook('testurl.xlsx')
+    workbook = xlwt.Workbook(encoding='utf-8')
+    worksheet = workbook.add_sheet(sheetname)
+    for i in range(len(urllist)):
+        worksheet.write(i,0,urllist[i])
+    workbook.save(filename+'.xlsx') 
+        
 
 if __name__ == "__main__":
     # ,'advamed.org','haymancapital.com','lr.org','mckinsey.com','mitre.org','nacdl.org','npr.org'
     urllist = ['rolandberger.com','advamed.org','haymancapital.com','lr.org','mckinsey.com','mitre.org','nacdl.org','npr.org','chevron.com','cru.org','delta.com','fhi360.org','halfaker.com']
-    for url in urllist:
-        name = get_one_page(url)
-        if name:
-            print(url, '---->', name)
-        else:
-            print(url, '----> 未找到详细信息')
+    create_url(urllist,'testur','testt')
+
+    # for url in urllist:
+    #     name = get_one_page(url)
+    #     if len(name)!=1:
+    #         print(url, '---->', name, len(name))
+    #     else:
+    #         print(url, '----> 需要手动获取信息')
